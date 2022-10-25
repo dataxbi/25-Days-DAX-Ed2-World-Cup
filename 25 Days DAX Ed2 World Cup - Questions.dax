@@ -60,12 +60,6 @@
     //
     //
     MEASURE Answers[Answer 10] = ""
-    //
-    //
-    // Day 11: Player with most tournaments played
-    //
-    //
-    MEASURE Answers[Answer 11] = ""
 
 //            
 //
@@ -126,11 +120,6 @@ ADDCOLUMNS (
             "Question", "Day 10: Country/s with most finals played but never lost",
             "Expected Answer", "England, Uruguay",
             "My Answer", [Answer 10]
-        ),
-        ROW (
-            "Question", "Day 11: Player with most tournaments played",
-            "Expected Answer", "Antonio Carbajal, Gianluigi Buffon, Lothar Matthäus, Rafael Márquez",
-            "My Answer", [Answer 11]
         )
     ),
     "Result", IF ( [Expected Answer] = [My Answer], "PASSED", "FAILED" )
