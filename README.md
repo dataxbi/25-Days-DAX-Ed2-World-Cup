@@ -14,5 +14,5 @@ Al ejecutar el fichero en DAX Studio se obtiene una tabla como la que se muestra
 
 ![Captura de pantalla de DAX Studio mostrando una tabla con cada pregunta del reto, la respuesta esperada, mi respuesta y una última columna que indica si mi respuesta es correcta](25DaysDAXEd2WorldCup.png)
 
-También puedes descargar el fichero **25 Days DAX Ed2 World Cup - Questions.dax** que tiene las respuestas, pero las medidads para cada pregunta están vacías, para que las puedas completar.
+También puedes descargar el fichero **25 Days DAX Ed2 World Cup - Questions.dax** que tiene las pregunstas y las respuestas esperadas, pero las medidads para cada pregunta están vacías, para que las puedas completar.
 
