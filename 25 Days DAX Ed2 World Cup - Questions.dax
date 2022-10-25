@@ -1,0 +1,137 @@
+﻿DEFINE
+    //
+    //
+    // Day 01: Country/s with most tournaments won
+    //
+    //
+    MEASURE Answers[Answer 01] = ""
+    
+    //
+    //
+    // Day 02: Host country/s that won
+    //
+    //
+    MEASURE Answers[Answer 02] = ""
+    //
+    //
+    // Day 03: Longest gap in years between tournaments
+    //
+    //
+    MEASURE Answers[Answer 03] = ""
+    //
+    //
+    // Day 04: Country/s with highest number of hosted tournaments
+    //
+    //
+    MEASURE Answers[Answer 04] = ""
+    //
+    //
+    // Day 05: Country/s with most second place finishes
+    //
+    //
+    MEASURE Answers[Answer 05] = ""
+    //
+    //
+    // Day 06: Country/s with most world cup appearances
+    //
+    //
+    MEASURE Answers[Answer 06] = ""
+    //
+    //
+    // Day 07: Country/s with most finishes in the top two
+    //
+    //
+    MEASURE Answers[Answer 07] = ""
+    //
+    //
+    // Day 08: Longest gap in years between titles
+    //
+    //
+    MEASURE Answers[Answer 08] = ""
+    //
+    //
+    // Day 09: Country/s with most consecutive championship wins
+    //
+    //
+    MEASURE Answers[Answer 09] = ""
+    //
+    //
+    // Day 10: Country/s with most finals played but never lost
+    //
+    //
+    MEASURE Answers[Answer 10] = ""
+    //
+    //
+    // Day 11: Player with most tournaments played
+    //
+    //
+    MEASURE Answers[Answer 11] = ""
+
+//            
+//
+//            
+//   Table with the results
+//
+
+EVALUATE
+
+ADDCOLUMNS (
+    UNION (
+        ROW (
+            "Question", "Day 01: Country/s with most tournaments won",
+            "Expected Answer", "Brazil",
+            "My Answer", [Answer 01]
+        ),
+        ROW (
+            "Question", "Day 02: Host country/s that won",
+            "Expected Answer", "Argentina, England, France, Italy, Uruguay, West Germany",
+            "My Answer", [Answer 02]
+        ),
+        ROW (
+            "Question", "Day 03: Longest gap in years between tournaments",
+            "Expected Answer", "12 years",
+            "My Answer", [Answer 03]
+        ),
+        ROW (
+            "Question", "Day 04: Country/s with highest number of hosted tournaments",
+            "Expected Answer", "Brazil, France, Italy, Mexico",
+            "My Answer", [Answer 04]
+        ),
+        ROW (
+            "Question", "Day 05: Country/s with most second place finishes",
+            "Expected Answer", "Argentina, Netherlands, West Germany",
+            "My Answer", [Answer 05]
+        ),
+        ROW (
+            "Question", "Day 06: Country/s with most world cup appearances",
+            "Expected Answer", "Brazil",
+            "My Answer", [Answer 06]
+        ),
+        ROW (
+            "Question", "Day 07: Country/s with most finishes in the top two",
+            "Expected Answer", "Brazil",
+            "My Answer", [Answer 07]
+        ),
+        ROW (
+            "Question", "Day 08: Longest gap in years between titles",
+            "Expected Answer", "44 years",
+            "My Answer", [Answer 08]
+        ),
+        ROW (
+            "Question", "Day 09: Country/s with most consecutive championship wins",
+            "Expected Answer", "Brazil, Italy",
+            "My Answer", [Answer 09]
+        ),
+        ROW (
+            "Question", "Day 10: Country/s with most finals played but never lost",
+            "Expected Answer", "England, Uruguay",
+            "My Answer", [Answer 10]
+        ),
+        ROW (
+            "Question", "Day 11: Player with most tournaments played",
+            "Expected Answer", "Antonio Carbajal, Gianluigi Buffon, Lothar Matthäus, Rafael Márquez",
+            "My Answer", [Answer 11]
+        )
+    ),
+    "Result", IF ( [Expected Answer] = [My Answer], "PASSED", "FAILED" )
+)

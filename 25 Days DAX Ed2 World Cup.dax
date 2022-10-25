@@ -1,0 +1,308 @@
+﻿DEFINE
+    //
+    //
+    // Day 01: Country/s with most tournaments won
+    //
+    //
+    MEASURE Answers[Answer 01] =
+        VAR _teamsWins =
+            ADDCOLUMNS (
+                VALUES ( Tournaments[Winner] ),
+                "@Wins",
+                    VAR winner = [Winner]
+                    RETURN
+                        CALCULATE ( COUNTROWS ( Tournaments ), Tournaments[Winner] = winner )
+            )
+        VAR _top1Winners =
+            TOPN ( 1, _teamsWins, [@Wins] )
+        RETURN
+            CONCATENATEX ( _top1Winners, [Winner], ", ", [Winner] )
+    //
+    //
+    // Day 02: Host country/s that won
+    //
+    //
+    MEASURE Answers[Answer 02] =
+        VAR _hostsWon =
+            CALCULATETABLE (
+                VALUES ( Tournaments[Host Country] ),
+                Tournaments[Host Won] = 1
+            )
+        RETURN
+            CONCATENATEX ( _hostsWon, [Host Country], ", ", [Host Country] )
+    //
+    //
+    // Day 03: Longest gap in years between tournaments
+    //
+    //
+    MEASURE Answers[Answer 03] =
+        VAR _tournamentsPrevYear =
+            ADDCOLUMNS (
+                Tournaments,
+                "@PrevYear",
+                    VAR y = [Year]
+                    RETURN
+                        COALESCE ( MAXX ( FILTER ( Tournaments, [Year] < y ), [Year] ), y )
+            )
+        VAR _tournamentsGap =
+            ADDCOLUMNS ( _tournamentsPrevYear, "@Gap", [Year] - [@PrevYear] )
+        VAR _longestGap =
+            MAXX ( TOPN ( 1, _tournamentsGap, [@Gap] ), [@Gap] )
+        RETURN
+            FORMAT ( _longestGap, "# years" )
+    //
+    //
+    // Day 04: Country/s with highest number of hosted tournaments
+    //
+    //
+    MEASURE Answers[Answer 04] =
+        VAR _countriesTournamentsCount =
+            ADDCOLUMNS (
+                VALUES ( Tournaments[Host Country] ),
+                "@TournametsCount",
+                    VAR hostCountry = [Host Country]
+                    RETURN
+                        COUNTROWS ( FILTER ( Tournaments, [Host Country] = hostCountry ) )
+            )
+        VAR _top1Countries =
+            TOPN ( 1, _countriesTournamentsCount, [@TournametsCount] )
+        RETURN
+            CONCATENATEX ( _top1Countries, [Host Country], ", ", [Host Country] )
+    //
+    //
+    // Day 05: Country/s with most second place finishes
+    //
+    //
+    MEASURE Answers[Answer 05] =
+        VAR _teams2ndPositionTournamentsCount =
+            ADDCOLUMNS (
+                VALUES ( 'Tournament Standings'[Team Name] ),
+                "@TournamentsCount",
+                    VAR teamName = [Team Name]
+                    RETURN
+                        COUNTROWS (
+                            FILTER ( 'Tournament Standings', [Team Name] = teamName && [Position] = 2 )
+                        )
+            )
+        VAR _top1 =
+            TOPN ( 1, _teams2ndPositionTournamentsCount, [@TournamentsCount] )
+        RETURN
+            CONCATENATEX ( _top1, [Team Name], ", ", [Team Name] )
+    //
+    //
+    // Day 06: Country/s with most world cup appearances
+    //
+    //
+    MEASURE Answers[Answer 06] =
+        VAR _teamAppearancesTournamentDistintCount =
+            ADDCOLUMNS (
+                SUMMARIZE ( 'Team Appearances', [Team Name] ),
+                "@TournamentDistinctCount",
+                    VAR team = [Team Name]
+                    RETURN
+                        CALCULATE (
+                            DISTINCTCOUNT ( 'Team Appearances'[Tournament Id] ),
+                            'Team Appearances'[Team Name] = team
+                        )
+            )
+        VAR topTeamAppearances =
+            TOPN ( 1, _teamAppearancesTournamentDistintCount, [@TournamentDistinctCount] )
+        RETURN
+            CONCATENATEX ( topTeamAppearances, [Team Name], ", ", [Team Name] )
+    //
+    //
+    // Day 07: Country/s with most finishes in the top two
+    //
+    //
+    MEASURE Answers[Answer 07] =
+        VAR _tournamentStandingsFinishes1or2 =
+            ADDCOLUMNS (
+                SUMMARIZE ( 'Tournament Standings', [Team Name] ),
+                "@Finishes1or2",
+                    VAR team = [Team Name]
+                    RETURN
+                        CALCULATE (
+                            COUNTROWS ( 'Tournament Standings' ),
+                            'Tournament Standings'[Team Name] = team
+                                && 'Tournament Standings'[Position] IN { 1, 2 }
+                        )
+            )
+        VAR _topFinishes1or2 =
+            TOPN ( 1, _tournamentStandingsFinishes1or2, [@Finishes1or2] )
+        RETURN
+            CONCATENATEX ( _topFinishes1or2, [Team Name], ", ", [Team Name] )
+    //
+    //
+    // Day 08: Longest gap in years between titles
+    //
+    //
+    MEASURE Answers[Answer 08] =
+        VAR _tournamentsWinnerGap =
+            ADDCOLUMNS (
+                SUMMARIZE ( Tournaments, [Winner], [Year] ),
+                "@Gap",
+                    VAR y = [Year]
+                    VAR w = [Winner]
+                    VAR yearPreviuosWin =
+                        CALCULATE (
+                            MAX ( Tournaments[Year] ),
+                            Tournaments[Winner] = w,
+                            Tournaments[Year] < y
+                        )
+                    RETURN
+                        [Year] - COALESCE ( yearPreviuosWin, [Year] )
+            )
+        VAR _maxGap =
+            MAXX ( _tournamentsWinnerGap, [@Gap] )
+        RETURN
+            FORMAT ( _maxGap, "# years" )
+    //
+    //
+    // Day 09: Country/s with most consecutive championship wins
+    //
+    //
+    MEASURE Answers[Answer 09] =
+        VAR _tournamentsPrevYear =
+            SELECTCOLUMNS (
+                Tournaments,
+                [Year],
+                [Winner],
+                "@PrevYear",
+                    VAR y = [Year]
+                    VAR prevYear =
+                        CALCULATE (
+                            MAX ( Tournaments[Year] ),
+                            ALL ( Tournaments ),
+                            Tournaments[Year] < y
+                        )
+                    RETURN
+                        prevYear
+            )
+        VAR _tournamentPrevWinner =
+            ADDCOLUMNS (
+                _tournamentsPrevYear,
+                "@PrevWinner", MAXX ( FILTER ( Tournaments, Tournaments[Year] = [@PrevYear] ), [Winner] )
+            )
+        VAR _tournamentsIsPrevWinner =
+            ADDCOLUMNS (
+                _tournamentPrevWinner,
+                "@IsPreviuosWinner", IF ( [Winner] = [@PrevWinner], 1, 0 )
+            )
+        VAR _tournamentsConsecutiveWins =
+            ADDCOLUMNS (
+                SUMMARIZE ( _tournamentsIsPrevWinner, [Winner] ),
+                "@ConsecutiveWins",
+                    VAR w = [Winner]
+                    RETURN
+                        SUMX ( FILTER ( _tournamentsIsPrevWinner, [Winner] = w ), [@IsPreviuosWinner] ) + 1
+            )
+        VAR _maxConsecutiveWins =
+            MAXX ( _tournamentsConsecutiveWins, [@ConsecutiveWins] )
+        VAR _teamsWithMaxConsecutiveWins =
+            FILTER ( _tournamentsConsecutiveWins, [@ConsecutiveWins] = _maxConsecutiveWins )
+        RETURN
+            CONCATENATEX ( _teamsWithMaxConsecutiveWins, [Winner], ", ", [Winner] )
+    //
+    //
+    // Day 10: Country/s with most finals played but never lost
+    //
+    //
+    MEASURE Answers[Answer 10] =
+        VAR _finalMatchesTeamWinner =
+            DISTINCT (
+                UNION (
+                    SELECTCOLUMNS (
+                        CALCULATETABLE ( Matches, Matches[Stage Name] IN { "final", "final round" } ),
+                        "Tournament id", [Tournament Id],
+                        "Team", [Home Team Name],
+                        "Winner", RELATED ( Tournaments[Winner] )
+                    ),
+                    SELECTCOLUMNS (
+                        CALCULATETABLE ( Matches, Matches[Stage Name] IN { "final", "final round" } ),
+                        "Tournament id", [Tournament Id],
+                        "Team", [Away Team Name],
+                        "Winner", RELATED ( Tournaments[Winner] )
+                    )
+                )
+            )
+        VAR _teamsFinalsWins =
+            ADDCOLUMNS (
+                SUMMARIZE ( _finalMatchesTeamWinner, [Team] ),
+                "@Finals",
+                    VAR team = [Team]
+                    RETURN
+                        COUNTROWS ( FILTER ( _finalMatchesTeamWinner, [Team] = team ) ),
+                "@Wins",
+                    VAR team = [Team]
+                    RETURN
+                        COUNTROWS (
+                            FILTER ( _finalMatchesTeamWinner, [Team] = team && [Winner] = team )
+                        ) + 0
+            )
+        VAR _teamsWithEqualFinalsAndWins =
+            FILTER ( _teamsFinalsWins, [@Finals] = [@Wins] )
+        RETURN
+            CONCATENATEX ( _teamsWithEqualFinalsAndWins, [Team], ", ", [Team] )
+
+//            
+//
+//            
+//   Table with the results
+//
+
+EVALUATE
+ADDCOLUMNS (
+    UNION (
+        ROW (
+            "Question", "Day 01: Country/s with most tournaments won",
+            "Expected Answer", "Brazil",
+            "My Answer", [Answer 01]
+        ),
+        ROW (
+            "Question", "Day 02: Host country/s that won",
+            "Expected Answer", "Argentina, England, France, Italy, Uruguay, West Germany",
+            "My Answer", [Answer 02]
+        ),
+        ROW (
+            "Question", "Day 03: Longest gap in years between tournaments",
+            "Expected Answer", "12 years",
+            "My Answer", [Answer 03]
+        ),
+        ROW (
+            "Question", "Day 04: Country/s with highest number of hosted tournaments",
+            "Expected Answer", "Brazil, France, Italy, Mexico",
+            "My Answer", [Answer 04]
+        ),
+        ROW (
+            "Question", "Day 05: Country/s with most second place finishes",
+            "Expected Answer", "Argentina, Netherlands, West Germany",
+            "My Answer", [Answer 05]
+        ),
+        ROW (
+            "Question", "Day 06: Country/s with most world cup appearances",
+            "Expected Answer", "Brazil",
+            "My Answer", [Answer 06]
+        ),
+        ROW (
+            "Question", "Day 07: Country/s with most finishes in the top two",
+            "Expected Answer", "Brazil",
+            "My Answer", [Answer 07]
+        ),
+        ROW (
+            "Question", "Day 08: Longest gap in years between titles",
+            "Expected Answer", "44 years",
+            "My Answer", [Answer 08]
+        ),
+        ROW (
+            "Question", "Day 09: Country/s with most consecutive championship wins",
+            "Expected Answer", "Brazil, Italy",
+            "My Answer", [Answer 09]
+        ),
+        ROW (
+            "Question", "Day 10: Country/s with most finals played but never lost",
+            "Expected Answer", "England, Uruguay",
+            "My Answer", [Answer 10]
+        )
+    ),
+    "Result", IF ( [Expected Answer] = [My Answer], "PASSED", "FAILED" )
+)
